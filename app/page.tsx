@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { exams } from '../lib/exams';
 export default function Home() {
  return <main className="mx-auto max-w-6xl px-6 py-8">
- <header className="flex items-center justify-between"><strong className="text-2xl tracking-widest">TAIYARI</strong><Link href="/exams" className="rounded-xl bg-[#101d3a] px-5 py-3 text-white">Explore exams</Link></header>
+ <header className="flex items-center justify-between"><strong className="text-2xl tracking-widest">TAIYARI</strong><nav className="flex items-center gap-3"><Link href="/login" className="rounded-lg border px-4 py-2">Sign in</Link><Link href="/dashboard" className="rounded-xl bg-[#101d3a] px-4 py-2 text-white">Dashboard</Link></nav></header>
  <section className="my-12 rounded-3xl bg-[#101d3a] px-8 py-16 text-white md:px-16">
  <p className="font-semibold text-[#f5c542]">YOUR PREPARATION. YOUR FUTURE.</p>
  <h1 className="mt-5 max-w-3xl text-4xl font-bold md:text-6xl">Prepare smarter. Move closer to your dream job.</h1>
