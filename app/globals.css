@@ -1,0 +1,4 @@
+@import "tailwindcss";
+:root { color-scheme: light; }
+body { margin: 0; background: #f7f8fc; color: #101d3a; font-family: Arial, sans-serif; }
+a:focus-visible, button:focus-visible { outline: 3px solid #b17b00; outline-offset: 4px; }
