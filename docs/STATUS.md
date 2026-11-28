@@ -28,3 +28,6 @@
 Migration 0009 exposes a limited public list of dated official headlines. In production, the anonymous RPC returned 10 eligible RBI headlines and anonymous direct queue access remained denied. The 20 ingested PIB headlines lack a source publication timestamp and are excluded. Automated bilingual summaries and quizzes remain pending.
 
 The homepage and supported exam pages link to the public current affairs and practice pages. Guest answer checks return feedback without storing attempts. Sign-in remains required for saved practice history and the personal dashboard. The public bank now starts with four original mathematics questions for RRB NTPC and Group D.
+
+## Phase 2.3 progress
+Provider-independent news source interface, HTTPS URL normalization, date validation, in-batch deduplication and source error isolation committed in 3b188cf. No concrete source adapter, persistent ingestion, scheduler or AI integration yet. Tests pending.
