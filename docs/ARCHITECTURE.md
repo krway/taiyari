@@ -36,3 +36,9 @@ Proposed ingestion flow: official/licensed sources -> normalized records -> dedu
 
 ## Background processing update (2026-11-28)
 Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
+
+## Verified ingestion runtime
+
+Supabase Cron invokes `public.dispatch_news_ingestion()` via SQL. The function reads the configured Edge endpoint from Vault, stores a hash of a two-minute, single-use dispatch token, and sends the token via pg_net. The Edge handler authenticates the dispatch by atomically consuming the token through a service-role-only RPC. Manual Edge calls may also authenticate with the service-role credential. This function uses application authentication with gateway JWT verification disabled.
+
+A partial unique index permits one running collection at a time. Collection checkpoints per-source candidates, inserts, attempts and errors in a private run table. A later invocation can mark a stale run as interrupted. The private queue uses conflict-ignoring inserts on its unique source URL to make retries safe.

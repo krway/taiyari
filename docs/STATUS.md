@@ -32,3 +32,12 @@ Migration 0003 applied: private news_sources and news_ingestion_queue, unique so
 - Next.js tsconfig excludes Deno functions (5b06404); redeploy pending.
 - PIB official RSS URL confirmed from publisher listing, actual feed fetch not yet validated. All sources disabled. Cron not scheduled.
 - Security advisor: leaked password protection disabled; private tables intentionally have no public policies.
+
+## Current verification — 28 November 2026
+
+- Render deployment `dep-dc57bs0u01pc73fn1p2g` for `4894bbc` was confirmed live. Home, exams, login and current affairs returned HTTP 200. Unauthenticated dashboard access redirected to login with HTTP 307.
+- Supabase migrations 0004–0006 applied. Edge function `ingest-news` v2 verified via pg_net. The first run inserted 20 PIB and 10 RBI rows. The second run processed the same 30 candidates, inserted zero duplicates and left 30 private queue rows. Zero articles have been published from the queue.
+- Anonymous POST returned 401. Database grants deny anon and authenticated roles queue and run history reads and dispatch/consume RPC execution. HTTPS endpoints for ISRO remain unverified, and the source remains disabled.
+- The daily collection job was registered for 05:00 IST after the two real runs. Its first daily execution remains pending.
+- Deno typecheck and six feed tests passed. Leaked-password protection remains disabled on the existing plan. Google and email sign-in flows still require isolated end-to-end verification.
+- Next vertical slice is Gemini or mock draft generation with structured validation, quota tracking and editorial review. Daily quizzes and later learning phases remain pending.

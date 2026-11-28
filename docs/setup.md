@@ -8,3 +8,5 @@
 6. Run npm run typecheck and npm run build before deployment.
 
 The exam catalog is currently mirrored in TypeScript and SQL; keep both in sync until database-backed catalog loading is implemented.
+
+Install dependencies with `npm ci` for a reproducible build. Run `npm run lint`, `npm run typecheck` and `npm run build` for the web app. For Edge code, run `deno check --node-modules-dir=none --frozen supabase/functions/ingest-news/index.ts` and `deno test --node-modules-dir=none --frozen supabase/functions`. Migration 0006 requires the Vault endpoint configured in OPERATIONS.md.

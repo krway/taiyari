@@ -1,37 +1,134 @@
 import { createClient } from "npm:@supabase/supabase-js@2.49.4";
-import { XMLParser } from "npm:fast-xml-parser@5.3.6";
-const hosts:Record<string,string[]>={pib:["pib.gov.in","www.pib.gov.in"],rbi:["rbi.org.in","www.rbi.org.in"],isro:["isro.gov.in","www.isro.gov.in"]};
-function allowed(value:string,id:string){try{const u=new URL(value);return u.protocol==="https:"&&!u.username&&!u.password&&!u.port&&hosts[id]?.includes(u.hostname)}catch{return false}}
-Deno.serve(async(req)=>{
- const key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
- if(req.method!=="POST")return new Response("Method not allowed",{status:405});
- if(!key||req.headers.get("Authorization")!=="Bearer "+key)return new Response("Unauthorized",{status:401});
- const db=createClient(Deno.env.get("SUPABASE_URL")!,key);
- const {data:sources,error}=await db.from("news_sources").select("id,feed_url").eq("enabled",true).limit(3);
- if(error)return Response.json({error:"Source lookup failed"},{status:500});
- const results=[];
- for(const s of sources??[]){
- try{
- if(!s.feed_url||!allowed(s.feed_url,s.id))throw Error("Unapproved feed");
- const res=await fetch(s.feed_url,{redirect:"error",signal:AbortSignal.timeout(10000)});
- if(!res.ok||!res.body)throw Error("Feed unavailable");
- const reader=res.body.getReader();let size=0;const decoder=new TextDecoder();let xml="";
- try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>2000000)throw Error("Feed too large");xml+=decoder.decode(value,{stream:true});}xml+=decoder.decode();}finally{await reader.cancel();}
- if(/<!DOCTYPE|<!ENTITY/i.test(xml))throw Error("Unsupported XML");
- const parsed=new XMLParser({processEntities:false,ignoreAttributes:false,parseTagValue:false}).parse(xml);
- const items=parsed?.rss?.channel?.item;
- if(!items)throw Error("Unsupported or empty RSS");
- const rows=[];const seen=new Set<string>();
- for(const item of (Array.isArray(items)?items:[items]).slice(0,50)){
- const url=typeof item.link==="string"?item.link.trim():"";
- const title=typeof item.title==="string"?item.title.trim().slice(0,500):"";
- if(!title||!allowed(url,s.id)||seen.has(url))continue;
- seen.add(url);const date=Date.parse(item.pubDate??"");
- rows.push({source_id:s.id,source_url:url,headline:title,source_published_at:Number.isFinite(date)?new Date(date).toISOString():null});
- }
- if(rows.length){const {error}=await db.from("news_ingestion_queue").upsert(rows,{onConflict:"source_url",ignoreDuplicates:true});if(error)throw Error("Queue write failed");}
- results.push({source:s.id,candidates:rows.length,ok:true});
- }catch{results.push({source:s.id,ok:false});}
- }
- return Response.json({results},{status:results.some(r=>!r.ok)?502:200});
+import { fetchFeed, parseFeed } from "./feed.ts";
+
+const staleRunMs = 120_000;
+
+async function collect(feedUrl: string, source: string) {
+  for (let attempt = 0;; attempt++) {
+    try {
+      const { xml, url } = await fetchFeed(feedUrl, source);
+      return {
+        rows: parseFeed(xml, url, source),
+        attempts: attempt + 1,
+      } as const;
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : "Feed request failed";
+      const transient = error instanceof TypeError ||
+        (error instanceof DOMException &&
+          ["AbortError", "TimeoutError"].includes(error.name)) ||
+        /^Feed HTTP (408|429|5\d\d)$/.test(message);
+      if (!transient || attempt === 1) {
+        return {
+          error: transient && !message.startsWith("Feed HTTP ")
+            ? "Feed connection failed"
+            : message,
+          attempts: attempt + 1,
+        } as const;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const url = Deno.env.get("SUPABASE_URL");
+  if (!key || !url) {
+    return new Response("Ingestion unavailable", { status: 503 });
+  }
+  const db = createClient(url, key, {
+    global: {
+      fetch: (input, init) =>
+        fetch(input, { ...init, signal: AbortSignal.timeout(5000) }),
+    },
+  });
+  if (req.headers.get("Authorization") !== `Bearer ${key}`) {
+    const token = req.headers.get("X-Ingestion-Dispatch");
+    if (!token || !/^[a-f0-9]{64}$/.test(token)) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+    const { data, error } = await db.rpc("consume_news_ingestion_dispatch", {
+      token,
+    });
+    if (error) {
+      return new Response("Dispatch verification unavailable", { status: 503 });
+    }
+    if (data !== true) return new Response("Unauthorized", { status: 401 });
+  }
+
+  const { error: recoveryError } = await db.from("news_ingestion_runs")
+    .update({ status: "interrupted", finished_at: new Date().toISOString() })
+    .eq("status", "running").lt(
+      "started_at",
+      new Date(Date.now() - staleRunMs).toISOString(),
+    );
+  if (recoveryError) {
+    return new Response("Run recovery failed", { status: 500 });
+  }
+
+  const { data: run, error: startError } = await db.from("news_ingestion_runs")
+    .insert({ status: "running" }).select("id").single();
+  if (startError?.code === "23505") {
+    return new Response("Ingestion already running", { status: 409 });
+  }
+  if (!run || startError) {
+    return new Response("Run creation failed", { status: 500 });
+  }
+
+  const { data: sources, error: lookupError } = await db.from("news_sources")
+    .select("id,feed_url")
+    .eq("enabled", true).order("id").limit(3);
+  const results = [];
+  if (lookupError) results.push({ ok: false, error: "Source lookup failed" });
+  for (const source of sources ?? []) {
+    const result = await collect(source.feed_url ?? "", source.id);
+    if (!result.rows) {
+      results.push({
+        source: source.id,
+        ok: false,
+        error: result.error,
+        attempts: result.attempts,
+      });
+    } else {
+      const { count, error } = result.rows.length
+        ? await db.from("news_ingestion_queue").upsert(result.rows, {
+          onConflict: "source_url",
+          ignoreDuplicates: true,
+          count: "exact",
+        })
+        : { count: 0, error: null };
+      results.push({
+        source: source.id,
+        candidates: result.rows.length,
+        inserted: count,
+        ok: !error,
+        attempts: result.attempts,
+        ...(error && { error: "Queue write failed" }),
+      });
+    }
+    const { error: checkpointError } = await db.from("news_ingestion_runs")
+      .update({ results }).eq("id", run.id).eq("status", "running");
+    if (checkpointError) {
+      return new Response("Run checkpoint failed", { status: 500 });
+    }
+  }
+  const failed = results.some((result) => !result.ok);
+  const { error: finishError } = await db.from("news_ingestion_runs")
+    .update({
+      status: failed ? "failed" : "succeeded",
+      finished_at: new Date().toISOString(),
+      results,
+    })
+    .eq("id", run.id).eq("status", "running");
+  if (finishError) {
+    return new Response("Run finalization failed", { status: 500 });
+  }
+  return Response.json({ runId: run.id, results }, {
+    status: failed ? 502 : 200,
+  });
 });

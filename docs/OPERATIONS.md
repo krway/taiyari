@@ -34,3 +34,11 @@ Inspect logs and latest deployed commit first. Revert faulty code through git an
 
 ## Background processing update (2026-11-28)
 Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
+
+## Current affairs collection
+
+Apply migrations 0004 and 0005 before deploying `ingest-news`. Set the Vault entry `news_ingestion_endpoint` to the project's HTTPS `/functions/v1/ingest-news` URL. Deploy with gateway JWT verification disabled for this function. The handler authorizes service-role calls and single-use database dispatches.
+
+As the database owner, execute `select public.dispatch_news_ingestion();` for a manual run. The returned pg_net request ID can be checked in `net._http_response`. Use `public.news_ingestion_runs` for durable per-source results. A successful Cron dispatch only confirms the HTTP request was queued. Check the Edge run for collection success. A run older than two minutes is reclaimed on the next invocation. Failed transient feed requests retry once.
+
+After testing a genuine run and repeat, apply 0006. The daily `taiyari-news-ingestion` job is scheduled at 23:30 UTC, which is 05:00 IST the following day. Check `cron.job`, `cron.job_run_details` and the ingestion run table when investigating missed runs. The job is independent of Render.
