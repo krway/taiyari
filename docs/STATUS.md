@@ -24,3 +24,11 @@ Verify current affairs migration 0002 and feed commits 9842797 / df7616f. Test R
 
 ## Background processing update (2026-11-28)
 Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
+
+### Verified deployment and ingestion update
+- Render current affairs release f44b9a0 live.
+- Edge function ingest-news v1 deployed, JWT verification on; runtime test pending.
+- Queue permissions verified: anon/authenticated cannot select or insert; service_role can.
+- Next.js tsconfig excludes Deno functions (5b06404); redeploy pending.
+- PIB official RSS URL confirmed from publisher listing, actual feed fetch not yet validated. All sources disabled. Cron not scheduled.
+- Security advisor: leaked password protection disabled; private tables intentionally have no public policies.
