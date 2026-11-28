@@ -22,7 +22,7 @@ Google OAuth: /login -> Supabase OAuth authorize -> Google -> Supabase /auth/v1/
 ## Existing data model
 exams(id text PK, name, category, available); seeded rrb-ntpc and rrb-group-d enabled, ssc-cgl and ibps-po disabled.
 profiles(id UUID PK references auth.users ON DELETE CASCADE, selected_exam_id FK exams, created_at).
-RLS: public catalog read; authenticated users read/insert/update own profile; selected exam must be available. Explicit grants. No current affairs tables yet.
+RLS: public catalog read; authenticated users read/insert/update own profile; selected exam must be available. Explicit grants. Current affairs table current_affairs_articles added by 0002 migration: UUID, unique HTTPS source URL, source name, publication date, category, bilingual title/summary/relevance, draft/published status and created_at. RLS published-only reads; no ordinary user writes. Feed route app/current-affairs/page.tsx displays latest 50 published articles. Deployment verification pending.
 
 ## Planned modular design
 Exam engine: exam configurations, subjects, topics, subtopics and syllabus mappings.
