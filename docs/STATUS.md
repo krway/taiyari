@@ -21,3 +21,6 @@ Render free tier cold starts; previous auto-deploy did not reliably trigger, ver
 
 ## Next action
 Verify current affairs migration 0002 and feed commits 9842797 / df7616f. Test RLS, typecheck/build and deployed page. Do not publish fabricated news. Update this document with evidence.
+
+## Background processing update (2026-11-28)
+Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
