@@ -1,6 +1,6 @@
 # Product vision
 
-TAIYARI — Your Preparation. Your Future. A mobile-friendly AI-assisted study platform for Indian competitive government exams. Start with Railway RRB NTPC and Group D; expand to SSC, banking, state PSC, police and UPSC using configurable exam tracks rather than duplicated applications.
+TAIYARI — Your Preparation. Your Future. A mobile-friendly AI-assisted study platform for Indian competitive government exams. Start with Railway RRB NTPC, Group D, ALP and JE; expand to SSC, banking, state PSC, police and UPSC using configurable exam tracks rather than duplicated applications.
 
 ## Goals
 Make daily preparation accessible, trustworthy and efficient. Connect current affairs to exam syllabi, practice mistakes to concepts, and performance to personalized revision. Build a daily habit with useful free content before deciding monetization. No pricing model has been approved.

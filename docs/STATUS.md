@@ -1,53 +1,26 @@
-# Status — 2026-11-28
+# Status — 28 November 2026
 
-## Implemented
-- Public GitHub repository krway/taiyari, main branch.
-- Next.js shell, landing page, exam catalog and track placeholders.
-- Render free web service deployed; latest previously verified application build live, lint/typecheck passed.
-- Supabase project created, foundation migration applied, four exam seed rows verified. Earlier security advisor returned no lints (not a full audit).
-- Email/password and Google OAuth code, session middleware, protected dashboard, exam selection and logout implemented.
-- Supabase production Site URL and callback allowlist saved successfully.
-- Google login reported working by owner after manual provider setup; no independent end-to-end test by agent.
-- Phase 2 architecture document committed (29f50c848b82ae95c3229adbf006fcb31c898562).
+## Production
 
-## Not yet verified
-Email signup/confirmation, logout, profile persistence, multi-user isolation and exact Google provider/consent settings after owner's manual changes. Verify without exposing credentials. Previous OAuth browser automation had loading/sign-in issues; do not assume it completed configuration.
+- Render deployment `dep-dc57lgk9v7es739gkg1g` is live for `7d3816b`. The production practice route redirects signed-out users to login. Web, Edge and database CI jobs passed for this commit.
 
-## Pending
-Phase 2.2: schema applied and RLS enabled; feed route and dashboard navigation committed. Build/deployment and role-based tests pending. No news ingestion, AI summaries, quizzes, bookmarks, analytics or scheduling implemented. Later phases in ROADMAP.md.
+- Supabase migrations 0001–0008 are applied. Edge function `ingest-news` v2 collects PIB and RBI releases every day at 05:00 IST. The daily job is active and a temporary Cron smoke job reached the worker successfully. The first daily execution is pending.
+- The first genuine ingestion inserted 20 PIB and 10 RBI articles. The second run processed the same 30 candidates and inserted zero duplicates. Anonymous POST returned 401. Database grants deny ordinary roles direct queue and history reads and dispatch or consume RPC execution. ISRO remains disabled because a working official feed has yet to be verified.
+- The public bilingual feed reads published briefings. The private queue contains 30 genuine articles and no briefings have been published from it.
+- Editors can save bilingual drafts, publish, unpublish and reject with an audit trail. Production has no assigned editor. An approved account is required for a signed-in production review test.
+- The practice bank has four subjects and no approved questions. The practice page supports exam, subject, topic, difficulty, year and provenance filters. Answer keys are private and attempts are scored at submission.
+- Google sign-in was previously confirmed by the project owner. Live email confirmation, Google OAuth, logout and profile persistence still need dedicated production test accounts.
 
-## Known issues / technical debt
-Render free tier cold starts; previous auto-deploy did not reliably trigger, verify deployed commit. Earlier build warned of missing SWC lockfile dependencies and npm reported two vulnerabilities (one moderate, one high); re-audit current dependencies and commit a lockfile. Static exam catalog duplicated in DB and TypeScript. Practice and revision cards remain placeholders. Instagram bio updated previously, name/handle/link not confirmed; no posts published. Legacy GitHub Pages preview was not working; Render is production.
+## Verification
 
-## Next action
-Verify current affairs migration 0002 and feed commits 9842797 / df7616f. Test RLS, typecheck/build and deployed page. Do not publish fabricated news. Update this document with evidence.
+- Edge formatting, lint and type checks passed. Six feed tests cover redirects, empty RSS, Atom, normalized duplicates, size limits and XML validation. Three draft-provider tests cover mock generation, request shape and rejected outputs.
+- Isolated PostgreSQL tests passed for editorial access, draft and publication visibility, unpublishing, rejection and audit history. Practice tests passed for provenance requirements, private solutions, scoring, idempotent submission and attempt isolation.
+- Local Chromium smoke tests at 375px and 1280px passed for the bilingual feed and signed-out access gates. With a mocked Supabase service, email sign-in, question submission and denial of editor access for a regular user also passed.
+- Production route checks passed for home, exams, login and the bilingual feed. The dashboard and editorial pages redirect signed-out users to login. Render required manual deploy triggers despite the auto-deploy setting.
+- The npm lockfile and scoped PostCSS override produced a passing web build and an npm audit with zero reported vulnerabilities. Supabase's leaked-password protection remains disabled on the free plan. Its advisor also flags authenticated security-definer RPCs, whose internal editor checks or attempt ownership are covered by isolated role tests.
 
-## Background processing update (2026-11-28)
-Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
+## Remaining work
 
-### Verified deployment and ingestion update
-- Render current affairs release f44b9a0 live.
-- Edge function ingest-news v1 deployed, JWT verification on; runtime test pending.
-- Queue permissions verified: anon/authenticated cannot select or insert; service_role can.
-- Next.js tsconfig excludes Deno functions (5b06404); redeploy pending.
-- PIB official RSS URL confirmed from publisher listing, actual feed fetch not yet validated. All sources disabled. Cron not scheduled.
-- Security advisor: leaked password protection disabled; private tables intentionally have no public policies.
-
-## Current verification — 28 November 2026
-
-- Render deployment `dep-dc57bs0u01pc73fn1p2g` for `4894bbc` was confirmed live. Home, exams, login and current affairs returned HTTP 200. Unauthenticated dashboard access redirected to login with HTTP 307.
-- Supabase migrations 0004–0006 applied. Edge function `ingest-news` v2 verified via pg_net. The first run inserted 20 PIB and 10 RBI rows. The second run processed the same 30 candidates, inserted zero duplicates and left 30 private queue rows. Zero articles have been published from the queue.
-- Anonymous POST returned 401. Database grants deny anon and authenticated roles queue and run history reads and dispatch/consume RPC execution. HTTPS endpoints for ISRO remain unverified, and the source remains disabled.
-- The daily collection job was registered for 05:00 IST after the two real runs. Its first daily execution remains pending.
-- Deno typecheck and six feed tests passed. Leaked-password protection remains disabled on the existing plan. Google and email sign-in flows still require isolated end-to-end verification.
-- Next vertical slice is Gemini or mock draft generation with structured validation, quota tracking and editorial review. Daily quizzes and later learning phases remain pending.
-
-A temporary Cron job dispatched the Edge worker successfully and removed itself. The worker again inserted zero duplicates. A separate daily job remains active.
-
-The server-side draft provider and mock integration passed three tests. No live Gemini requests were made. Excerpt collection, private draft persistence, quota enforcement and editorial review remain open.
-
-The manual editorial queue supports bilingual draft, publish, unpublish and reject operations. Isolated PostgreSQL tests passed for role restrictions, draft visibility, publication, unpublication and audit logging. Production editor assignment and a signed-in review test require the approved editor account. No production test fixture was published.
-
-Render deployment `dep-dc57j7t6e07s739ntiv0` went live for `0a22e8e`. Production smoke checks passed on home, exams, login and the bilingual feed. Signed-out dashboard and editorial requests redirected to login. CI passed for that commit. No production editor account has been assigned.
-
-Migration 0008 adds the practice question bank, private solutions and per-user attempts. The practice page has exam, subject, topic, source, year and difficulty filters and individual server-scored questions. Isolated database tests passed for metadata requirements, answer-key permissions, scoring, duplicate submission and per-user attempt isolation. The production bank has no approved questions. Bulk import, review, timed practice, bookmarks, error history and statistics remain open.
+- Live Gemini generation needs an API key and approved source excerpts. The verified provider adapter returns provenance, prompt version and token usage. Automated staging, persistent AI usage and quotas, editorial regeneration, question validation and daily quizzes remain pending.
+- The initial practice slice needs approved questions. Bulk import, moderation, timed sessions, bookmarks, error history, reporting and statistics remain pending.
+- See ROADMAP.md for the remaining concept learning, mocks, personalization, revision and social export work. Public social publishing remains disabled.

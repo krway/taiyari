@@ -22,7 +22,7 @@ Google OAuth: /login -> Supabase OAuth authorize -> Google -> Supabase /auth/v1/
 ## Existing data model
 exams(id text PK, name, category, available); seeded rrb-ntpc and rrb-group-d enabled, ssc-cgl and ibps-po disabled.
 profiles(id UUID PK references auth.users ON DELETE CASCADE, selected_exam_id FK exams, created_at).
-RLS: public catalog read; authenticated users read/insert/update own profile; selected exam must be available. Explicit grants. Current affairs table current_affairs_articles added by 0002 migration: UUID, unique HTTPS source URL, source name, publication date, category, bilingual title/summary/relevance, draft/published status and created_at. RLS published-only reads; no ordinary user writes. Feed route app/current-affairs/page.tsx displays latest 50 published articles. Deployment verification pending.
+RLS: public catalog read; authenticated users read/insert/update own profile; selected exam must be available. Explicit grants. Current affairs table current_affairs_articles added by 0002 migration: UUID, unique HTTPS source URL, source name, publication date, category, bilingual title/summary/relevance, draft/published status and created_at. RLS published-only reads; no ordinary user writes. The public current affairs feed displays up to 50 published briefings.
 
 ## Planned modular design
 Exam engine: exam configurations, subjects, topics, subtopics and syllabus mappings.
@@ -33,9 +33,6 @@ AI engine: server-side provider interface, structured outputs, validation, edito
 Analytics engine: user progress and aggregated performance. Subscription model deferred.
 
 Proposed ingestion flow: official/licensed sources -> normalized records -> deduplicate -> AI draft -> validation/editorial review -> published content -> feed/quiz/social assets. Separate drafts from published content. Store source URLs and publication timestamps; avoid full copyrighted text. Keep quiz answer keys inaccessible to clients until submission. Use ownership RLS for user records and restricted editor/backend writes. These modules are proposals, not implemented services.
-
-## Background processing update (2026-11-28)
-Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
 
 ## Verified ingestion runtime
 

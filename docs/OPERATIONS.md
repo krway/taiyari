@@ -21,7 +21,7 @@ Supabase allowed redirect: https://taiyari.onrender.com/auth/callback
 Production Supabase URL settings saved; owner reports Google login working. Email provider and confirmation enabled at last inspection. For local development use separate project or add explicit localhost callback without overwriting production Site URL. Check Google audience/test-user restrictions before wider release.
 
 ## Development and deployment
-Node 22; npm install (use npm ci once lockfile exists), npm run dev, npm run typecheck, npm run build. Render build npm install && npm run build; start npm start -- --hostname 0.0.0.0. Check auto-deploy and actual commit; trigger manually only if needed. Verify build/runtime logs and public routes. Free service may take time to wake. Do not upgrade without approval.
+Use Node 22, npm ci, npm run dev, npm run typecheck and npm run build. Render build npm install && npm run build; start npm start -- --hostname 0.0.0.0. Check auto-deploy and actual commit; trigger manually only if needed. Verify build/runtime logs and public routes. Free service may take time to wake. Do not upgrade without approval.
 
 ## Database changes
 Use versioned SQL migrations, review additive changes, apply once to target project and verify schema/RLS with appropriate roles. Never re-run foundation migration against production blindly. Do not expose service role, answer keys or private drafts. Run security advisors and check cross-user isolation. Record applied migrations.
@@ -31,9 +31,6 @@ Home, exam list, Google sign-in, email signup/confirmation, dashboard, exam sele
 
 ## Recovery
 Inspect logs and latest deployed commit first. Revert faulty code through git and redeploy known-good commit if needed; database rollback requires separate reviewed plan. Never delete user data or rotate credentials casually. Keep STATUS.md current. Browser dashboard sessions and connector permissions may expire; reconnect only through secure sign-in, never request passwords in chat.
-
-## Background processing update (2026-11-28)
-Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
 
 ## Current affairs collection
 
