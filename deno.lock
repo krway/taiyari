@@ -2,7 +2,8 @@
   "version": "5",
   "specifiers": {
     "npm:@supabase/supabase-js@2.49.4": "2.49.4",
-    "npm:fast-xml-parser@5.12.1": "5.12.1"
+    "npm:fast-xml-parser@5.12.1": "5.12.1",
+    "npm:zod@4.4.3": "4.4.3"
   },
   "npm": {
     "@nodable/entities@3.1.0": {
@@ -128,23 +129,34 @@
     },
     "xml-naming@0.3.1": {
       "integrity": "sha512-EJ9yNAfjrIz2z7chbVlj4CD3HkPxXNPD6U6LzhKEfIFlRmEHtl7CN6C0qdPGL4hplTuj2wePPgIZN8aklE/2Og=="
+    },
+    "zod@4.4.3": {
+      "integrity": "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="
     }
   },
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@eslint/eslintrc@^3.3.7",
         "npm:@supabase/ssr@~0.12.7",
         "npm:@supabase/supabase-js@^2.49.0",
         "npm:@tailwindcss/postcss@4",
         "npm:@types/node@22",
         "npm:@types/react-dom@19",
         "npm:@types/react@19",
+        "npm:eslint-config-next@^15.5.29",
+        "npm:eslint@^9.39.5",
         "npm:next@^15.5.0",
         "npm:react-dom@19",
         "npm:react@19",
         "npm:tailwindcss@4",
         "npm:typescript@^5.8.0"
-      ]
+      ],
+      "overrides": {
+        "next": {
+          "postcss": "^8.5.34"
+        }
+      }
     }
   }
 }

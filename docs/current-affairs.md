@@ -20,3 +20,9 @@ Feed handles empty and error states, displays source links and dates, supports m
 - ISRO remains disabled. Candidate URLs returned HTTP 403 from the test environment.
 
 RSS and Atom are supported. The Edge worker bounds redirects, HTTP time, response size and entries per source. It keeps publisher URLs, strips fragments and known tracking parameters, sorts query parameters and uses the queue's unique URL constraint for repeat and concurrent ingestion. Empty feeds succeed. The worker stores headlines and provenance in the private queue. AI drafting and editorial publication remain separate milestones.
+
+## AI draft provider
+
+The server-side `news-drafts.ts` module accepts a headline and a trusted, licensed excerpt. It validates structured bilingual output, bounds fields and options, rejects duplicate questions and requires verbatim source evidence for each question. It records source URL, model, prompt version and token usage in its return value. The Gemini adapter was tested with a mocked HTTP response. An evidence match does not validate a question's answer or summary by itself. Editorial approval remains required before publication.
+
+Live generation requires a Gemini API key, an excerpt collection and rights policy, a private draft store and quota enforcement. The ingestion schedule does not invoke Gemini.
