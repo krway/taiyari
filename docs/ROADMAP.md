@@ -4,7 +4,7 @@ Phase 0 — architecture and product definition: initial decisions documented.
 Phase 1 — foundation: implemented; remaining end-to-end verification listed in STATUS.md.
 Phase 2 — current affairs (active):
 - 2.1 Architecture: done.
-- 2.2 Database schema and published feed: next.
+- 2.2 Database schema applied and feed code committed; deployment and role tests pending.
 - 2.3 Official/licensed source ingestion and deduplication.
 - 2.4 Server-side AI bilingual drafts, structured validation and editorial approval.
 - 2.5 Daily MCQs, secure scoring and explanations.
