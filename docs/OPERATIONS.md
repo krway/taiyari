@@ -31,3 +31,6 @@ Home, exam list, Google sign-in, email signup/confirmation, dashboard, exam sele
 
 ## Recovery
 Inspect logs and latest deployed commit first. Revert faulty code through git and redeploy known-good commit if needed; database rollback requires separate reviewed plan. Never delete user data or rotate credentials casually. Keep STATUS.md current. Browser dashboard sessions and connector permissions may expire; reconnect only through secure sign-in, never request passwords in chat.
+
+## Background processing update (2026-11-28)
+Migration 0003 applied: private news_sources and news_ingestion_queue, unique source URL deduplication; PIB, RBI, ISRO registered but disabled pending feed verification. Proposed execution: Supabase Cron -> Edge Functions -> Gemini API -> editorial review -> published articles. Render serves UI only; jobs must not depend on its uptime. Target free quotas, verify before enabling; no paid upgrades. Store run history, bounded retries and errors; keep secrets in server-side secret storage. Proposed collection at 05:00 IST (23:30 UTC previous day), approved publication target 07:00 IST (01:30 UTC). No scheduler or AI integration active yet. Next: verify feeds, implement and test ingestion, then schedule securely. Never auto-publish unreviewed content.
