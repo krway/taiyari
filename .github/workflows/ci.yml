@@ -64,3 +64,5 @@ jobs:
           -f supabase/tests/editorial.sql
           -f supabase/migrations/0008_practice_question_bank.sql
           -f supabase/tests/practice.sql
+          -f supabase/migrations/0009_official_headlines.sql
+          -f supabase/tests/official_headlines.sql

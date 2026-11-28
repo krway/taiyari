@@ -24,3 +24,5 @@
 - Live Gemini generation needs an API key and approved source excerpts. The verified provider adapter returns provenance, prompt version and token usage. Automated staging, persistent AI usage and quotas, editorial regeneration, question validation and daily quizzes remain pending.
 - The initial practice slice needs approved questions. Bulk import, moderation, timed sessions, bookmarks, error history, reporting and statistics remain pending.
 - See ROADMAP.md for the remaining concept learning, mocks, personalization, revision and social export work. Public social publishing remains disabled.
+
+Migration 0009 exposes a limited public list of dated official headlines. In production, the anonymous RPC returned 10 eligible RBI headlines and anonymous direct queue access remained denied. The 20 ingested PIB headlines lack a source publication timestamp and are excluded. Automated bilingual summaries and quizzes remain pending.
