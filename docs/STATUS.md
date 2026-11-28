@@ -45,3 +45,5 @@ Migration 0003 applied: private news_sources and news_ingestion_queue, unique so
 A temporary Cron job dispatched the Edge worker successfully and removed itself. The worker again inserted zero duplicates. A separate daily job remains active.
 
 The server-side draft provider and mock integration passed three tests. No live Gemini requests were made. Excerpt collection, private draft persistence, quota enforcement and editorial review remain open.
+
+The manual editorial queue supports bilingual draft, publish, unpublish and reject operations. Isolated PostgreSQL tests passed for role restrictions, draft visibility, publication, unpublication and audit logging. Production editor assignment and a signed-in review test require the approved editor account. No production test fixture was published.

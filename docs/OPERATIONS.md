@@ -42,3 +42,7 @@ Apply migrations 0004 and 0005 before deploying `ingest-news`. Set the Vault ent
 As the database owner, execute `select public.dispatch_news_ingestion();` for a manual run. The returned pg_net request ID can be checked in `net._http_response`. Use `public.news_ingestion_runs` for durable per-source results. A successful Cron dispatch only confirms the HTTP request was queued. Check the Edge run for collection success. A run older than two minutes is reclaimed on the next invocation. Failed transient feed requests retry once.
 
 After testing a genuine run and repeat, apply 0006. The daily `taiyari-news-ingestion` job is scheduled at 23:30 UTC, which is 05:00 IST the following day. Check `cron.job`, `cron.job_run_details` and the ingestion run table when investigating missed runs. The job is independent of Render.
+
+## Editorial access
+
+Apply migration 0007 before deploying the editorial page. The database owner grants editorial access by inserting the approved account's existing Auth user UUID into `public.news_editors`. The dashboard shows the review link only to editors. Verify the account owner before granting access. The editor can save bilingual drafts, publish, unpublish or reject an ingestion candidate. Audit entries record the action, actor and item. The review page currently shows the 50 most recently collected items.
