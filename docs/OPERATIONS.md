@@ -43,3 +43,5 @@ After testing a genuine run and repeat, apply 0006. The daily `taiyari-news-inge
 ## Editorial access
 
 Apply migration 0007 before deploying the editorial page. The database owner grants editorial access by inserting the approved account's existing Auth user UUID into `public.news_editors`. The dashboard shows the review link only to editors. Verify the account owner before granting access. The editor can save bilingual drafts, publish, unpublish or reject an ingestion candidate. Audit entries record the action, actor and item. The review page currently shows the 50 most recently collected items.
+
+Apply 0010 before deploying guest practice. Migration 0011 adds four original mathematics questions with checked solutions. The public catalog exposes published questions. Guest scoring writes no attempt records.

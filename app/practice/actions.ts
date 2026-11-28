@@ -19,11 +19,11 @@ export async function submitAnswer(_previous: AnswerResult, form: FormData): Pro
   }
   const client = await supabase();
   const { data: { user } } = await client.auth.getUser();
-  if (!user) return { error: 'Sign in again to submit your answer.' };
-
-  const { data, error } = await client.rpc('submit_practice_answer', {
-    attempt_id: attempt, question, selected: Number(choice),
-  }).single();
+  const answer = { question, selected: Number(choice) };
+  const request = user
+    ? client.rpc('submit_practice_answer', { attempt_id: attempt, ...answer })
+    : client.rpc('check_guest_practice_answer', answer);
+  const { data, error } = await request.single();
   if (error || !data) return { error: 'Unable to submit this answer. Please try again.' };
   return data as Exclude<AnswerResult, null | { error: string }>;
 }

@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { exams } from '../../lib/exams';
 import { supabase } from '../../lib/supabase/server';
 import { AnswerForm } from './answer-form';
@@ -38,7 +37,6 @@ export default async function Practice({ searchParams }: {
 }) {
   const client = await supabase();
   const { data: { user } } = await client.auth.getUser();
-  if (!user) redirect('/login');
   const [params, subjects, topics] = await Promise.all([
     searchParams,
     client.from('practice_subjects').select('slug,name').order('name'),
@@ -75,8 +73,13 @@ export default async function Practice({ searchParams }: {
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <Link href="/dashboard" className="underline">Dashboard</Link>
+      <nav aria-label="Study" className="flex flex-wrap gap-4">
+        <Link href="/" className="underline">Home</Link>
+        <Link href="/current-affairs" className="underline">Current affairs</Link>
+        {user && <Link href="/dashboard" className="underline">Dashboard</Link>}
+      </nav>
       <h1 className="my-6 text-4xl font-bold">Practice questions</h1>
+      {!user && <p className="mb-4"><Link className="underline" href="/login">Sign in</Link> to save your practice history.</p>}
       <form action="/practice" className="grid gap-4 rounded-xl bg-white p-5 sm:grid-cols-3">
         <Filter name="exam" label="Exam" value={filters.exam} choices={examOptions} />
         <Filter name="subject" label="Subject" value={filters.subject} choices={subjectOptions} />

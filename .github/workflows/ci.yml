@@ -66,3 +66,6 @@ jobs:
           -f supabase/tests/practice.sql
           -f supabase/migrations/0009_official_headlines.sql
           -f supabase/tests/official_headlines.sql
+          -f supabase/migrations/0010_guest_practice.sql
+          -f supabase/tests/guest_practice.sql
+          -f supabase/migrations/0011_original_starter_practice.sql
