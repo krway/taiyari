@@ -42,3 +42,7 @@ Migration 0003 applied: private news_sources and news_ingestion_queue, unique so
 Supabase Cron invokes `public.dispatch_news_ingestion()` via SQL. The function reads the configured Edge endpoint from Vault, stores a hash of a two-minute, single-use dispatch token, and sends the token via pg_net. The Edge handler authenticates the dispatch by atomically consuming the token through a service-role-only RPC. Manual Edge calls may also authenticate with the service-role credential. This function uses application authentication with gateway JWT verification disabled.
 
 A partial unique index permits one running collection at a time. Collection checkpoints per-source candidates, inserts, attempts and errors in a private run table. A later invocation can mark a stale run as interrupted. The private queue uses conflict-ignoring inserts on its unique source URL to make retries safe.
+
+## Practice question bank
+
+Published questions are readable by signed-in students. Solutions live in a separate private table. A security-definer scoring RPC checks that the exam and question are available, writes an ownership-scoped attempt and returns the answer and explanation only after accepting a submission. Attempt IDs make identical retries idempotent. Verified previous-year questions require both a year and a source reference. Test fixtures are isolated from production.

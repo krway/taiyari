@@ -34,7 +34,7 @@ jobs:
       - run: deno check --node-modules-dir=none --frozen supabase/functions/ingest-news/index.ts
       - run: deno test --node-modules-dir=none --frozen supabase/functions
 
-  editorial-database:
+  database:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -62,3 +62,5 @@ jobs:
           -f supabase/migrations/0003_news_ingestion.sql
           -f supabase/migrations/0007_news_editorial.sql
           -f supabase/tests/editorial.sql
+          -f supabase/migrations/0008_practice_question_bank.sql
+          -f supabase/tests/practice.sql

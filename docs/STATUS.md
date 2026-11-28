@@ -47,3 +47,7 @@ A temporary Cron job dispatched the Edge worker successfully and removed itself.
 The server-side draft provider and mock integration passed three tests. No live Gemini requests were made. Excerpt collection, private draft persistence, quota enforcement and editorial review remain open.
 
 The manual editorial queue supports bilingual draft, publish, unpublish and reject operations. Isolated PostgreSQL tests passed for role restrictions, draft visibility, publication, unpublication and audit logging. Production editor assignment and a signed-in review test require the approved editor account. No production test fixture was published.
+
+Render deployment `dep-dc57j7t6e07s739ntiv0` went live for `0a22e8e`. Production smoke checks passed on home, exams, login and the bilingual feed. Signed-out dashboard and editorial requests redirected to login. CI passed for that commit. No production editor account has been assigned.
+
+Migration 0008 adds the practice question bank, private solutions and per-user attempts. The practice page has exam, subject, topic, source, year and difficulty filters and individual server-scored questions. Isolated database tests passed for metadata requirements, answer-key permissions, scoring, duplicate submission and per-user attempt isolation. The production bank has no approved questions. Bulk import, review, timed practice, bookmarks, error history and statistics remain open.

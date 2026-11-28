@@ -25,3 +25,5 @@ Migration 0003 applied: private news_sources and news_ingestion_queue, unique so
 ## Delivery update — 28 November 2026
 
 Phase 2.3 official feed collection is live for PIB and RBI. Real initial and duplicate ingestion tests passed. Collection is scheduled for 05:00 IST. ISRO verification remains open. Phase 2.4 structured AI drafts and editorial review are next.
+
+Phase 2 now has a manual, audited editorial workflow and a tested Gemini adapter. Live AI drafting, persistent quotas and daily quizzes remain pending. Phase 3 has the initial question catalog, filtered practice and secure scoring. Approved PYQ content and the bulk import, review and timed practice workflows remain pending.
